@@ -40,8 +40,44 @@ namespace DungeonSlime
     {
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
-      SpriteBatch.Begin();
-      SpriteBatch.Draw(_logo, Vector2.Zero, Color.White);
+      Rectangle iconSourceRect = new Rectangle(0, 0, 128, 128);
+      Rectangle wordmarkSourceRect = new Rectangle(150, 34, 458, 58);
+
+      SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack);
+
+      SpriteBatch.Draw(
+        texture: _logo,
+        position: new Vector2(
+          Window.ClientBounds.Width,
+          Window.ClientBounds.Height) * 0.5f,
+        sourceRectangle: iconSourceRect,
+        color: Color.White,
+        rotation: 0.0f,
+        origin: new Vector2(
+          iconSourceRect.Width,
+          iconSourceRect.Height) * 0.5f,
+        scale: 1.0f,
+        effects: SpriteEffects.None,
+        layerDepth: 1.0f
+       );
+
+      SpriteBatch.Draw(
+        texture: _logo,
+        position: new Vector2(
+          Window.ClientBounds.Width,
+          Window.ClientBounds.Height) * 0.5f,
+        sourceRectangle: wordmarkSourceRect,
+        color: Color.White,
+        rotation: 0.0f,
+        origin: new Vector2(
+          wordmarkSourceRect.Width,
+          wordmarkSourceRect.Height) * 0.5f,
+        scale: 1.0f,
+        effects: SpriteEffects.None,
+        layerDepth: 1.0f
+       );
+
+
       SpriteBatch.End();
 
       base.Draw(gameTime);
