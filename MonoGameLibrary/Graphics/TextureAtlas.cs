@@ -97,5 +97,13 @@ public class TextureAtlas
       }
     }
   }
+
+  // creates a new sprite using the reigon from this texture atlas with the specified name
+  public Sprite CreateSprite(string regionName)
+  {
+    TextureRegion region = GetRegion(regionName);
+    return new Sprite(region);
+  }
+
 }
 

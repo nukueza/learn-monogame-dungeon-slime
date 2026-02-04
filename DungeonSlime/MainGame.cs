@@ -8,9 +8,9 @@ namespace DungeonSlime
 {
   public class MainGame : Core
   {
-    private TextureRegion _slime;
-    private TextureRegion _bat;
-
+    private Sprite _slime;
+    private Sprite _bat;
+    
     public MainGame() : base("Dungeon Slime", 1280, 720, false)
     {
     }
@@ -30,11 +30,12 @@ namespace DungeonSlime
         "images/atlas-definition.xml"
       );
 
-      // retrieve the slime region from the atlas
-      _slime = atlas.GetRegion("slime");
+      _slime = atlas.CreateSprite("slime");
+      _slime.Scale = new Vector2(4.0f, 4.0f);
 
-      // retrieve the bat region from the atlas
-      _bat = atlas.GetRegion("bat");
+      _bat = atlas.CreateSprite("bat");
+      _bat.Scale = new Vector2(4.0f, 4.0f);
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -55,26 +56,14 @@ namespace DungeonSlime
       
       _slime.Draw(
         SpriteBatch,
-        Vector2.Zero,
-        Color.White,
-        0.0f,
-        Vector2.One,
-        4.0f,
-        SpriteEffects.None,
-        0.0f
+        Vector2.Zero
        );
 
       _bat.Draw(
         SpriteBatch,
         new Vector2(
-          _slime.Width * 4.0f + 10,
-          0),
-        Color.White,
-        0.0f,
-        Vector2.One,
-        4.0f,
-        SpriteEffects.None,
-        0.0f
+          _slime.Width + 10,
+          0)
        );
 
 
