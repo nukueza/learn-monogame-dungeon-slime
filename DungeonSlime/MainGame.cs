@@ -8,8 +8,8 @@ namespace DungeonSlime
 {
   public class MainGame : Core
   {
-    private Sprite _slime;
-    private Sprite _bat;
+    private AnimatedSprite _slime;
+    private AnimatedSprite _bat;
     
     public MainGame() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -30,10 +30,10 @@ namespace DungeonSlime
         "images/atlas-definition.xml"
       );
 
-      _slime = atlas.CreateSprite("slime");
+      _slime = atlas.CreateAnimatedSprite("slime-animation");
       _slime.Scale = new Vector2(4.0f, 4.0f);
 
-      _bat = atlas.CreateSprite("bat");
+      _bat = atlas.CreateAnimatedSprite("bat-animation");
       _bat.Scale = new Vector2(4.0f, 4.0f);
 
     }
@@ -44,6 +44,8 @@ namespace DungeonSlime
         Exit();
 
       // TODO: Add your update logic here
+      _slime.Update(gameTime);
+      _bat.Update(gameTime);
 
       base.Update(gameTime);
     }

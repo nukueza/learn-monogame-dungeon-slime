@@ -7,7 +7,7 @@ namespace MonoGameLibrary.Graphics;
 public class Sprite
 {
   // gets or set the source texture region represented by this sprite
-  public TextureRegion Region { get; private set; }
+  public TextureRegion Region { get; set; }
 
   // get or sets teh color mask to apply when rendering the sprite
   public Color Color { get; set; } = Color.White;
