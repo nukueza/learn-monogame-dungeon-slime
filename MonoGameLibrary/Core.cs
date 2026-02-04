@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using MonoGameLibrary.Input;
 
 namespace MonoGameLibrary;
 
@@ -24,6 +26,12 @@ public class Core : Game
 
   // Gets the content manager used to load game assets
   public static new ContentManager Content { get; private set; }
+
+  // gets reference to the input management system
+  public static InputManager Input { get; private set; }
+
+  // get or set a value that indicates  if the game should exit
+  public static bool ExitOnEscape { get; set; }
 
   // Create a new Core instance
   public Core(string title, int width, int height, bool fullScreen)
@@ -57,6 +65,9 @@ public class Core : Game
 
     // Mouse is visible by default
     IsMouseVisible = true;
+
+    // exit on escape is true by default
+    ExitOnEscape = true;
   }
 
   protected override void Initialize()
@@ -68,6 +79,22 @@ public class Core : Game
 
     // Create the sprite batch instance
     SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+    // create a new input manager
+    Input = new InputManager();
+  }
+
+  protected override void Update(GameTime gameTime)
+  {
+    // update the input manager
+    Input.Update(gameTime);
+
+    if (ExitOnEscape && Input.Keyboard.IsKeyDown(Keys.Escape))
+    {
+      Exit();
+    }
+
+    base.Update(gameTime);
   }
 }
 
