@@ -7,6 +7,7 @@ namespace DungeonSlime
 {
   public class MainGame : Core
   {
+    private Texture2D _logo;
 
     public MainGame() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -15,13 +16,13 @@ namespace DungeonSlime
     protected override void Initialize()
     {
       // TODO: Add your initialization logic here
-
       base.Initialize();
     }
 
     protected override void LoadContent()
     {
       // TODO: use this.Content to load your game content here
+      _logo = Content.Load<Texture2D>("images/logo");
       base.LoadContent();
     }
 
@@ -39,7 +40,9 @@ namespace DungeonSlime
     {
       GraphicsDevice.Clear(Color.CornflowerBlue);
 
-      // TODO: Add your drawing code here
+      SpriteBatch.Begin();
+      SpriteBatch.Draw(_logo, Vector2.Zero, Color.White);
+      SpriteBatch.End();
 
       base.Draw(gameTime);
     }
