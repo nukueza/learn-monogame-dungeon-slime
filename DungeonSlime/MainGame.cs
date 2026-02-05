@@ -6,6 +6,8 @@ using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using System.Collections.Generic;
 using MonoGameLibrary.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace DungeonSlime
 {
@@ -25,6 +27,12 @@ namespace DungeonSlime
 
     private Tilemap _tilemap;
     private Rectangle _roomBounds;
+
+    private SoundEffect _bounceSoundEffect;
+    private SoundEffect _collectSoundEffect;
+
+    // the background theme song
+    private Song _themeSong;
     
     public MainGame() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -51,6 +59,8 @@ namespace DungeonSlime
 
       _inputBuffer = new Queue<Vector2>(MAX_BUFFER_SIZE);
       AssignRandomBatVelocity();
+
+      Audio.PlaySong(_themeSong);
     }
 
     protected override void LoadContent()
@@ -70,6 +80,13 @@ namespace DungeonSlime
 
       _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
       _tilemap.Scale = new Vector2(4.0f, 4.0f);
+
+      // load the bounce sound effect
+      _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
+      _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
+
+      // load the background theme music
+      _themeSong = Content.Load<Song>("audio/theme");
     }
 
     protected override void Update(GameTime gameTime)
@@ -155,6 +172,9 @@ namespace DungeonSlime
       {
         normal.Normalize();
         _batVelocity = Vector2.Reflect(_batVelocity, normal);
+
+        // play teh bounce sf
+        Audio.PlaySoundEffect(_bounceSoundEffect);
       }
 
       _batPosition = newBatPosition;
@@ -176,6 +196,8 @@ namespace DungeonSlime
 
         // Assign a new random velocity to the bat
         AssignRandomBatVelocity();
+
+        Audio.PlaySoundEffect(_collectSoundEffect);
       }
 
       base.Update(gameTime);
@@ -239,6 +261,24 @@ namespace DungeonSlime
       {
         Vector2 bufferedDirection = _inputBuffer.Dequeue();
         _slimePosition += bufferedDirection * speed * 0.5f;
+      }
+
+      if (Input.Keyboard.WasKeyJustPressed(Keys.M))
+      {
+        Audio.ToggleMute();
+      }
+
+      if (Input.Keyboard.WasKeyJustPressed(Keys.OemPlus))
+      {
+        Audio.SongVolume += 0.1f;
+        Audio.SoundEffectVolume += 0.1f;
+      }
+
+      // if the button was pressed, decrease the volume
+      if (Input.Keyboard.WasKeyJustPressed(Keys.OemMinus))
+      {
+        Audio.SongVolume -= 0.1f;
+        Audio.SoundEffectVolume -= 0.1f;
       }
     }
 

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary.Input;
+using MonoGameLibrary.Audio;
 
 namespace MonoGameLibrary;
 
@@ -32,6 +33,9 @@ public class Core : Game
 
   // get or set a value that indicates  if the game should exit
   public static bool ExitOnEscape { get; set; }
+
+  // get a reference to the audio control system
+  public static AudioController Audio {  get; private set; }
 
   // Create a new Core instance
   public Core(string title, int width, int height, bool fullScreen)
@@ -82,12 +86,27 @@ public class Core : Game
 
     // create a new input manager
     Input = new InputManager();
+
+    // create a new audio controller
+    Audio = new AudioController();
+  }
+
+  // clean up things
+  protected override void UnloadContent()
+  {
+    // dispose of the audio controller
+    Audio.Dispose();
+
+    base.UnloadContent();
   }
 
   protected override void Update(GameTime gameTime)
   {
     // update the input manager
     Input.Update(gameTime);
+
+    // update the audio controller
+    Audio.Update();
 
     if (ExitOnEscape && Input.Keyboard.IsKeyDown(Keys.Escape))
     {

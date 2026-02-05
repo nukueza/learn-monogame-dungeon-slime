@@ -36,6 +36,11 @@ public class KeyboardInfo
     return CurrentState.IsKeyUp(key);
   }
 
+  public bool WasKeyJustPressed(Keys key)
+  {
+    return CurrentState.IsKeyDown(key) && PreviousState.IsKeyUp(key);
+  }
+
   // returns a value that indicates if the specified key was just pressed on the current frame
   public bool WasKeyPressed(Keys key)
   {
