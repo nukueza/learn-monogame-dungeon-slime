@@ -31,6 +31,11 @@ namespace DungeonSlime
     private SoundEffect _bounceSoundEffect;
     private SoundEffect _collectSoundEffect;
 
+    private SpriteFont _font;
+    private int _score;
+    private Vector2 _scoreTextPosition;
+    private Vector2 _scoreTextOrigin;
+
     // the background theme song
     private Song _themeSong;
     
@@ -61,6 +66,11 @@ namespace DungeonSlime
       AssignRandomBatVelocity();
 
       Audio.PlaySong(_themeSong);
+
+      _scoreTextPosition = new Vector2(_roomBounds.Left, _tilemap.TileHeight * 0.5f);
+
+      float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
+      _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
     }
 
     protected override void LoadContent()
@@ -87,6 +97,9 @@ namespace DungeonSlime
 
       // load the background theme music
       _themeSong = Content.Load<Song>("audio/theme");
+
+      // load font
+      _font = Content.Load<SpriteFont>("fonts/04B_30");
     }
 
     protected override void Update(GameTime gameTime)
@@ -198,6 +211,8 @@ namespace DungeonSlime
         AssignRandomBatVelocity();
 
         Audio.PlaySoundEffect(_collectSoundEffect);
+
+        _score += 100;
       }
 
       base.Update(gameTime);
@@ -343,6 +358,18 @@ namespace DungeonSlime
         SpriteBatch,
         _batPosition
        );
+
+      SpriteBatch.DrawString(
+        _font,
+        $"Score: {_score}",
+        _scoreTextPosition,
+        Color.White,
+        0.0f,
+        _scoreTextOrigin,
+        1.0f,
+        SpriteEffects.None,
+        0.0f
+      );
 
 
       SpriteBatch.End();
