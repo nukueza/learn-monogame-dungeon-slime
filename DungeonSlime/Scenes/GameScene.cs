@@ -2,13 +2,18 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
 using System;
-using System.Collections.Generic;
+using Gum.DataTypes;
+using Gum.Wireframe;
+using MonoGameGum;
+using Gum.Forms.Controls;
+using MonoGameGum.GueDeriving;
+using DungeonSlime.UI;
+using Gum.Managers;
 
 namespace DungeonSlime.Scenes;
 
@@ -56,6 +61,11 @@ public class GameScene : Scene
   // Defines the origin used when drawing the score text.
   private Vector2 _scoreTextOrigin;
 
+  private Panel _pausePanel;
+  private AnimatedButton _resumeButton;
+  private SoundEffect _uiSoundEffect;
+  private TextureAtlas _atlas;
+
   public override void Initialize()
   {
     // TODO: Add your initialization logic here
@@ -88,20 +98,22 @@ public class GameScene : Scene
     _font = Content.Load<SpriteFont>("fonts/04B_30");
 
     AssignRandomBatVelocity();
+
+    InitializeUI();
   }
 
   public override void LoadContent()
   {
     // create texture atlas from the xml configuration file
-    TextureAtlas atlas = TextureAtlas.FromFile(
+     _atlas = TextureAtlas.FromFile(
       Content,
       "images/atlas-definition.xml"
     );
 
-    _slime = atlas.CreateAnimatedSprite("slime-animation");
+    _slime = _atlas.CreateAnimatedSprite("slime-animation");
     _slime.Scale = new Vector2(4.0f, 4.0f);
 
-    _bat = atlas.CreateAnimatedSprite("bat-animation");
+    _bat = _atlas.CreateAnimatedSprite("bat-animation");
     _bat.Scale = new Vector2(4.0f, 4.0f);
 
     _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
@@ -113,7 +125,85 @@ public class GameScene : Scene
 
     // load font
     _font = Content.Load<SpriteFont>("fonts/04B_30");
+
+    _uiSoundEffect = Core.Content.Load<SoundEffect>("audio/ui");
   }
+
+  private void CreatePausePanel()
+  {
+    _pausePanel = new Panel();
+    _pausePanel.Anchor(Anchor.Center);
+    _pausePanel.WidthUnits = DimensionUnitType.Absolute;
+    _pausePanel.HeightUnits = DimensionUnitType.Absolute;
+    _pausePanel.Height = 70;
+    _pausePanel.Width = 264;
+    _pausePanel.IsVisible = false;
+    _pausePanel.AddToRoot();
+
+    TextureRegion backgroundRegion = _atlas.GetRegion("panel-background");
+
+    NineSliceRuntime background = new NineSliceRuntime();
+    background.Dock(Dock.Fill);
+    background.Texture = backgroundRegion.Texture;
+    background.TextureAddress = TextureAddress.Custom;
+    background.TextureHeight = backgroundRegion.Height;
+    background.TextureLeft = backgroundRegion.SourceRectangle.Left;
+    background.TextureTop = backgroundRegion.SourceRectangle.Top;
+    background.TextureWidth = backgroundRegion.Width;
+    _pausePanel.AddChild(background);
+
+    var textInstance = new TextRuntime();
+    textInstance.Text = "PAUSED";
+    textInstance.CustomFontFile = @"fonts/04b_30.fnt";
+    textInstance.UseCustomFont = true;
+    textInstance.FontScale = 0.5f;
+    textInstance.X = 10f;
+    textInstance.Y = 10f;
+    _pausePanel.AddChild(textInstance);
+
+    _resumeButton = new AnimatedButton(_atlas);
+    _resumeButton.Text = "RESUME";
+    _resumeButton.Anchor(Anchor.BottomLeft);
+    _resumeButton.X = 9f;
+    _resumeButton.Y = -9f;
+    _resumeButton.Width = 80;
+    _resumeButton.Click += HandleResumeButtonClicked;
+    _pausePanel.AddChild(_resumeButton);
+
+    AnimatedButton quitButton = new AnimatedButton(_atlas);
+    quitButton.Text = "QUIT";
+    quitButton.Anchor(Anchor.BottomRight);
+    quitButton.X = -9f;
+    quitButton.Y = -9f;
+    quitButton.Width = 80;
+    quitButton.Click += HandleQuitButtonClicked;
+
+    _pausePanel.AddChild(quitButton);
+  }
+  private void HandleResumeButtonClicked(object sender, EventArgs e)
+  {
+    // A UI interaction occurred, play the sound effect
+    Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+    // Make the pause panel invisible to resume the game.
+    _pausePanel.IsVisible = false;
+  }
+  private void HandleQuitButtonClicked(object sender, EventArgs e)
+  {
+    // A UI interaction occurred, play the sound effect
+    Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+    // Go back to the title scene.
+    Core.ChangeScene(new TitleScene());
+  }
+  private void InitializeUI()
+  {
+    GumService.Default.Root.Children.Clear();
+
+    CreatePausePanel();
+  }
+
+
 
   public override void Update(GameTime gameTime)
   {
@@ -122,6 +212,13 @@ public class GameScene : Scene
 
     CheckKeyboardInput();
     CheckGamePadInput();
+
+    // Ensure the ui is always update
+    GumService.Default.Update(gameTime);
+    if (_pausePanel.IsVisible)
+    {
+      return;
+    }
 
     // create a bounding rectangle for the screen
     //Rectangle screenBounds = new Rectangle(
@@ -244,7 +341,15 @@ public class GameScene : Scene
   {
     // get the state of keyboard input
     KeyboardState keyboardState = Keyboard.GetState();
+    KeyboardInfo keyboard = Core.Input.Keyboard;
+
     Vector2 newDirection = Vector2.Zero;
+
+    if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Escape))
+    {
+      PauseGame();
+      return;
+    }
 
     // if the space key is held down, the movement speed increase
     float speed = MOVEMENT_SPEED;
@@ -297,6 +402,13 @@ public class GameScene : Scene
   private void CheckGamePadInput()
   {
     GamePadInfo gamePadOne = Core.Input.GamePads[(int)PlayerIndex.One];
+
+    // if the start button is pressed, pause the game
+    if (gamePadOne.WasButtonJustPressed(Buttons.Start))
+    {
+      PauseGame();
+      return;
+    }
 
     float speed = MOVEMENT_SPEED;
     if (gamePadOne.IsButtonDown(Buttons.A))
@@ -369,6 +481,15 @@ public class GameScene : Scene
     );
 
     Core.SpriteBatch.End();
+
+    GumService.Default.Draw();
+  }
+
+  private void PauseGame()
+  {
+    _pausePanel.IsVisible = true;
+
+    _resumeButton.IsFocused = true;
   }
 
 }

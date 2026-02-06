@@ -18,6 +18,18 @@ public class TextureRegion
   // gets the height of the texture region
   public int Height => SourceRectangle.Height;
 
+  // gets the top normalized texture coordinate of this region
+  public float TopTextureCoordinate => SourceRectangle.Top / (float) Texture.Height;
+
+  // gets the bottom normalized texture coordinate of this region
+  public float BottomTextureCoordinate => SourceRectangle.Bottom / (float) Texture.Height;
+
+  // gets the left normalized texture coordinate of this region
+  public float LeftTextureCoordinate => SourceRectangle.Left / (float) Texture.Width;
+
+  // gets the right normalized texture coordinate of this region
+  public float RightTextureCoordinate => SourceRectangle.Right / (float) Texture.Width;
+
   // creates a new texture region
   public TextureRegion() { }
 
